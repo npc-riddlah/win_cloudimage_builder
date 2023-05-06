@@ -1,19 +1,15 @@
 #!/bin/bash
-#$1 - path of .raw file
-#$2 - path of mount dir
-#$3 - size of image
-#$4 - path of iso file
-#$5 - path to WinPE prepared ISO
-#$6 - Image Name ("Windows Server 2019 SERVERSTANDARD" at example)
-#$7 - Path to element with scripts
 
-PATH_IMAGE=$1
-PATH_MOUNT=$2
-PATH_ISO=$4
-PATH_WINPE=$5
-SIZE_IMAGE=$3
-NAME_IMAGE=$6
-PATH_ELEMENT=$7
+help_out(){
+	printf "%s\n" "Commandline parameters:"
+	printf "%s\n" "-h or --help 	: This text"
+	printf "%s\n" "-i or --image	: Path of final raw image. Where we store it"
+	printf "%s\n" "-m or --mount	: Path of directory, where image will be mounted"
+	printf "%s\n" "-s or --size	: Size of the final image (At example: 20G)"
+	printf "%s\n" "-I or --iso	: Path to reference Windows ISO image"
+	printf "%s\n" "-w or --winpeiso: Path to prepared WinPE ISO that will create bcd storage"
+	printf "%s\n" "-n or --name	: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
+}
 
 info_out(){
 	C_GREN='\033[0;32m'
@@ -80,50 +76,74 @@ run_winpe(){
 	qemu-system-x86_64 -accel kvm -m 2048 -drive file=$1,format=raw,index=1,media=disk -boot d -cdrom $2 -vga qxl -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
 }
 
+#Parsing commandline here
+POSITIONAL_ARGS=()
+(( ELEMENT_COUNT=0 ))
+while [[ $# -gt 0 ]]; do
+	case $1 in
+	-h|--help)
+		help_out
+		exit 0
+		shift
+		shift
+	;;
+	-i|--image)
+		PATH_IMAGE=$2
+		shift
+		shift
+	;;
+	-m|--mount)
+		PATH_MOUNT=$2
+		shift
+		shift
+	;;
+	-s|--size)
+		SIZE_IMAGE=$2
+		shift
+		shift
+	;;
+	-I|--iso)
+		PATH_ISO=$2
+		shift
+		shift
+	;;
+	-w|--winpeiso)
+		PATH_WINPE=$2
+		shift
+		shift
+	;;
+	-n|--name)
+		NAME_IMAGE="$2"
+		shift
+		shift
+	;;
+	-e|--element)
+		((ELEMENT_COUNT++))
+		PATH_ELEMENT[$ELEMENT_COUNT]=$2
+		shift
+		shift
+	;;
+	-*|--*)
+		info_out "Unknown option $1"
+		help_out
+		exit 1
+	;;
+	*)
+		POSITIONAL_ARGS+=("$1")
+		shift
+	;;
+	esac
+done
+
+#Running all necessary tasks
 directories_mount $PATH_MOUNT $PATH_ISO
 image_create $PATH_IMAGE $SIZE_IMAGE
-PATH_LO=$(losetup --partscan --show --find $1)
+PATH_LO=$(losetup --partscan --show --find $PATH_IMAGE)
 image_part ${PATH_LO}
 wim_extract $PATH_MOUNT "$NAME_IMAGE" ${PATH_LO}
 copy_unattend $PATH_ELEMENT"/Unattend.xml" ${PATH_LO}
-copy_element $PATH_ELEMENT $PATH_MOUNT
+for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
 directories_umount $PATH_ISO ${PATH_LO}
 run_winpe $PATH_IMAGE $PATH_WINPE
 info_out "All is done!"
 exit 0
-
-#mkdir $2
-#mkdir $2/iso
-
-#mount -o loop $4 $2/iso
-
-#qemu-img create -f raw -o size=$3 $1
-#parted $1 mklabel msdos
-#PATH_LO=$(losetup --partscan --show --find $1)
-
-#parted "${PATH_LO}" -- mkpart primary fat32 1M 512M
-#parted "${PATH_LO}" -- set 1 esp on
-#parted "${PATH_LO}" -- set 1 boot on
-#parted "${PATH_LO}" -- mkpart primary ntfs 512M 100%
-#parted "${PATH_LO}" -- set 2 esp on
-#parted "${PATH_LO}" -- set 2 boot on
-#mkfs.vfat "${PATH_LO}""p1" -F32
-#mkfs.ntfs "${PATH_LO}""p2" -Q -v -F -p 0 -S 1 -H 1
-#ms-sys -n "${PATH_LO}""p2"
-#install-mbr -i n -p D -t 0 "${PATH_LO}"
-
-#wiminfo $2/iso/sources/install.wim
-#echo "wimapply "$2"/iso/sources/install.wim" $6 "${PATH_LO}""p2"
-#wimapply $2/iso/sources/install.wim "$6" "${PATH_LO}""p2"
-
-#mkdir ${PATH_LO}p2/Windows/Panther
-#cp $7 ${PATH_LO}p2/Windows/Panther/Unnatend.xml
-
-#umount $4
-
-#losetup -d "${PATH_LO}"
-
-#echo "Running pe with bootsect installation"
-#qemu-system-x86_64 -accel kvm -m 2048 -drive file=$1,format=raw,index=1,media=disk -boot d -cdrom $5 -vga qxl -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
-#echo "All is done!"
-#exit 0
