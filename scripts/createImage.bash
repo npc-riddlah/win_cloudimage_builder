@@ -12,44 +12,51 @@ help_out(){
 }
 
 info_out(){
+	if [[ -n "$1" ]]; then
 	C_GREN='\033[0;32m'
 	C_NULL='\033[0m'
 	printf "${C_GREN}[INFO] $1 ${C_NULL}\n"
+	fi
+}
+
+warn_out(){
+	if [[ -n "$1" ]]; then
+	C_YELW='\033[1;33m'
+	C_NULL='\033[0m'
+	printf "${C_YELW}[WARN] $1 ${C_NULL}\n"
+	fi
 }
 
 directories_mount(){
 	info_out "Mounting dirs"
-	mkdir $1
-	mkdir $1/iso
+	mkdir -p $1
+	mkdir -p $1/iso
 	mount -o loop $2 $1/iso
 }
 
 image_create(){
 	info_out "Creating image"
         qemu-img create -f raw -o size=$2 $1
-        parted $1 mklabel gpt
+        parted $1 mklabel gpt \$> /dev/null
 }
 
 
 image_part(){
 	info_out "Partitioning image"
-	parted "$1" -- mkpart primary fat32 1M 512M
-	parted "$1" -- set 1 esp on
-	parted "$1" -- set 1 boot on
-	parted "$1" -- mkpart primary ntfs 512M 100%
-	parted "$1" -- set 2 esp on
-	parted "$1" -- set 2 boot on
+	parted "$1" -- mkpart primary fat32 1M 512M $> /dev/null
+	parted "$1" -- set 1 esp on $> /dev/null
+	parted "$1" -- set 1 boot on $> /dev/null
+	parted "$1" -- mkpart primary ntfs 512M 100% $> /dev/null
+	parted "$1" -- set 2 esp on $> /dev/null
+	parted "$1" -- set 2 boot on $> /dev/null
 	mkfs.vfat "$1""p1" -F32
-	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1
-#	ms-sys -n "$1""p2"
-#	install-mbr -i n -p D -t 0 "$1"
-#	lilo -b $1 mbr
+	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1 -q
+	install-mbr -i n -p D -t 0 "$1"
 }
 
 wim_extract(){
 	info_out "Extracting WIM archive"
-	wiminfo $1/iso/sources/install.wim
-	echo "wimapply "$1"/iso/sources/install.wim" "$2" $3"p2"
+	#wiminfo $1/iso/sources/install.wim "$2"
 	wimapply $1/iso/sources/install.wim "$2" $3"p2"
 }
 
@@ -73,7 +80,7 @@ directories_umount(){
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
-	qemu-system-x86_64 -accel kvm -m 2048 -drive file=$1,format=raw,index=1,media=disk -boot d -cdrom $2 -vga qxl -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+	qemu-system-x86_64 -accel kvm -m 2048 -drive file=$1,format=raw,index=1,media=disk -boot d -cdrom $2 -vga qxl -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -q
 }
 
 #Parsing commandline here
