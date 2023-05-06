@@ -1,2 +1,3 @@
 #!/bin/bash
-apt install wimtools qemu-utils
+apt update
+apt install wimtools qemu-utils syslinux qemu-kvm mbr -y
