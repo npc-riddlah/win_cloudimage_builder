@@ -9,6 +9,7 @@ help_out(){
 	printf "%s\n" "-I or --iso	: Path to reference Windows ISO image"
 	printf "%s\n" "-w or --winpeiso: Path to prepared WinPE ISO that will create bcd storage"
 	printf "%s\n" "-n or --name	: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
+	printf "%s\n" "-u or --unattendxml    : Path to unattend.xml"
 }
 
 info_out(){
@@ -27,11 +28,20 @@ warn_out(){
 	fi
 }
 
-directories_mount(){
-	info_out "Mounting dirs"
+iso_mount(){
+	info_out "Mounting iso"
 	mkdir -p $1
 	mkdir -p $1/iso
 	mount -o loop $2 $1/iso
+	ls $1/iso -ahl
+}
+
+raw_mount(){
+	info_out "Mounting raw image"
+	mkdir -p $1
+	mkdir -p $1/raw
+	mount $2 $1/raw
+	ls $1/raw -ahl
 }
 
 image_create(){
@@ -47,7 +57,7 @@ image_part(){
 	parted "$1" -- set 1 esp on
 	parted "$1" -- set 1 boot on
 	parted "$1" -- mkpart primary ntfs 106M 100%
-#	parted "$1" -- set 2 msftdata on
+	parted "$1" -- set 2 msftdata on
 	parted "$1" -- print
 	mkfs.vfat "$1""p1" -F32
 	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1 -q
@@ -60,26 +70,33 @@ wim_extract(){
 }
 
 copy_unattend(){
-	info_out "Copying Unnatend.xml"
-	mkdir ${2}p2/Windows/Panther
-	cp $1 ${2}p2/Windows/Panther/Unnatend.xml
+	info_out "Copying Unnattend.xml"
+	mkdir ${2}/raw/Windows/Panther -p
+	cp $1 ${2}/raw/Windows/Panther/Unattend.xml
 }
 
 copy_element(){
 	info_out "Copying element:"$1
-	cp $1/root/ ${2}p2/ -vR
-	cp $1/autostart/*  ${2}p2/Windows/Setup/Scripts/ -vR
+	cp $1/root/* ${2}/raw/ -vR
+#	cp $1/autostart/*  ${2}/Windows/Setup/Scripts/ -vR
+	cp $1/autostart/*  ${2}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup
 }
 
 directories_umount(){
 	info_out "Unmounting directiories"
-	umount $1
+	umount $1/iso
+	umount $1/raw
 	losetup -d "$2"
 }
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
 	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+}
+
+run_win(){
+	info_out "Running installed windows. Awaiting sysprep to finish..."
+	qemu-system-x86_64 -accel kvm -m 2048 -boot c -hda $1 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host -net nic -net tap,script=no,downscript=no
 }
 
 #Parsing commandline here
@@ -129,6 +146,11 @@ while [[ $# -gt 0 ]]; do
 		shift
 		shift
 	;;
+	-u|--unattendxml)
+		PATH_UNATTEND=$2
+		shift
+		shift
+	;;
 	-*|--*)
 		info_out "Unknown option $1"
 		help_out
@@ -142,14 +164,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 #Running all necessary tasks
-directories_mount $PATH_MOUNT $PATH_ISO
+iso_mount $PATH_MOUNT $PATH_ISO
 image_create $PATH_IMAGE $SIZE_IMAGE
 PATH_LO=$(losetup --partscan --show --find $PATH_IMAGE)
 image_part ${PATH_LO}
 wim_extract $PATH_MOUNT "$NAME_IMAGE" ${PATH_LO}
-copy_unattend $PATH_ELEMENT"/Unattend.xml" ${PATH_LO}
+raw_mount $PATH_MOUNT ${PATH_LO}p2
+copy_unattend $PATH_UNATTEND $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
-directories_umount $PATH_ISO ${PATH_LO}
+directories_umount $PATH_MOUNT ${PATH_LO}
 run_winpe $PATH_IMAGE $PATH_WINPE
+run_win $PATH_IMAGE
 info_out "All is done!"
 exit 0
