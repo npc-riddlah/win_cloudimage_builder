@@ -3,7 +3,9 @@ Tool to build Windows images on Linux hosts
 Catalog structure:  
 -elements				<- Folder with elements  
 ---CUSTOM_ELEMENT_NAME	<- One element folder  
------autostart 			<- Files from here will be copied into shell:startup  
+-----install 			<- Files from here will be copied into C:/hooks/install/ and will be launched by mainhook  
+-----configure                    <- Files from here will be copied into C:/hooks/configure/ and will be launched by mainhook
+-----clean			<- Files from here will be copied into C:/hooks/clean/ and will be launched by mainhook  
 -----root				<- Files from here will be copied in system drive with overwrite  
 -ISO					<- Contains ISO with WinPE and other windows original ISO  
 -result					<- Contains builded ready to upload .raw images  

@@ -87,11 +87,21 @@ copy_unattend(){
 	cp $1 ${2}/raw/Windows/Panther/Unattend.xml
 }
 
+copy_mainhook(){
+	info_out "Copying Main hook"
+	PATH_SCRIPT=$(dirname "${BASH_SOURCE[0]}")
+	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup/mainhook.cmd -v
+}
+
 copy_element(){
 	info_out "Copying element:"$1
-	cp $1/root/* ${2}/raw/ -vR
-#	cp $1/autostart/*  ${2}/Windows/Setup/Scripts/ -vR
-	cp $1/autostart/*  ${2}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup
+	mkdir ${2}/raw/hooks/install -p
+	mkdir ${2}/raw/hooks/configure -p
+	mkdir ${2}/raw/hooks/clean -p
+	cp $1/root/* ${2}/raw/ -vfR
+	cp $1/install/*  ${2}/raw/hooks/install/ -vR
+	cp $1/configure/* $2/raw/hooks/configure/ -vR
+	cp $1/clean/* ${2}/raw/hooks/clean/ -vR
 }
 
 directories_umount(){
@@ -196,6 +206,7 @@ image_part ${PATH_LO}
 wim_extract $PATH_MOUNT "$NAME_IMAGE" ${PATH_LO}
 raw_mount $PATH_MOUNT ${PATH_LO}p2
 copy_unattend $PATH_UNATTEND $PATH_MOUNT
+copy_mainhook $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
 directories_umount $PATH_MOUNT ${PATH_LO}
 run_winpe $PATH_IMAGE $PATH_WINPE
