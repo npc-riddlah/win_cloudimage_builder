@@ -2,14 +2,17 @@
 
 help_out(){
 	printf "%s\n" "Commandline parameters:"
-	printf "%s\n" "-h or --help 	: This text"
-	printf "%s\n" "-i or --image	: Path of final raw image. Where we store it"
-	printf "%s\n" "-m or --mount	: Path of directory, where image will be mounted"
-	printf "%s\n" "-s or --size	: Size of the final image (At example: 20G)"
-	printf "%s\n" "-I or --iso	: Path to reference Windows ISO image"
-	printf "%s\n" "-w or --winpeiso: Path to prepared WinPE ISO that will create bcd storage"
-	printf "%s\n" "-n or --name	: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
-	printf "%s\n" "-u or --unattendxml    : Path to unattend.xml"
+	printf "%s\n" "-h or --help 		: This text"
+	printf "%s\n" "-i or --image		: Path of final raw image. Where we store it"
+	printf "%s\n" "-m or --mount		: Path of directory, where image will be mounted"
+	printf "%s\n" "-s or --size		: Size of the final image (At example: 20G)"
+	printf "%s\n" "-I or --iso		: Path to reference Windows ISO image"
+	printf "%s\n" "-w or --winpeiso		: Path to prepared WinPE ISO that will create bcd storage"
+	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
+	printf "%s\n" "-u or --unattendxml	: Path to unattend.xml"
+	printf "%s\n" "-r or --runner		: Path to VM runner script"
+	printf "%s\n" "Runner must run virtual machine somewhere based on input ISO and RAW image"
+	printf "%s\n" "Example: ./scripts/runOVMF.sh ./ISO/WinPE.iso ./result/win22.raw"
 }
 
 info_out(){
@@ -105,7 +108,9 @@ run_winpe(){
 
 run_win(){
 	info_out "Running installed windows. Awaiting sysprep to finish..."
-	qemu-system-x86_64 -accel kvm -m 2048 -boot c -hda $1 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host -net nic -net tap,script=no,downscript=no
+	info_out "Runner: $1 $2"
+#	qemu-system-x86_64 -accel kvm -m 2048 -boot c -hda $1 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host -net nic -net tap,script=no,downscript=no
+	eval "$1 $2"
 }
 
 if [ "$EUID" -ne 0 ]
@@ -165,6 +170,12 @@ while [[ $# -gt 0 ]]; do
 		shift
 		shift
 	;;
+        -r|--runner)
+		FLAG_RUNNER=true
+                PATH_RUNNER=$2
+                shift
+                shift
+        ;;
 	-*|--*)
 		info_out "Unknown option $1"
 		help_out
@@ -188,6 +199,8 @@ copy_unattend $PATH_UNATTEND $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
 directories_umount $PATH_MOUNT ${PATH_LO}
 run_winpe $PATH_IMAGE $PATH_WINPE
-run_win $PATH_IMAGE
-info_out "All is done!"
+if [ "$FLAG_RUNNER" = true ]; then 
+	run_win $PATH_RUNNER $PATH_IMAGE 
+fi
+info_out "Image is done!"
 exit 0
