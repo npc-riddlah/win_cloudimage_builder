@@ -21,4 +21,4 @@ Commandline parameters:
 -u or --unattendxml    : Path to unattend.xml  
 -r or --runner           : Path to VM runner script  
 Runner must run virtual machine somewhere based RAW image  
-Example: ./scripts/runOVMF.sh ./ISO/WinPE.iso
+Example: ./scripts/runOVMF.sh ./result/win22.raw

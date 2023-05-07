@@ -11,8 +11,8 @@ help_out(){
 	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
 	printf "%s\n" "-u or --unattendxml	: Path to unattend.xml"
 	printf "%s\n" "-r or --runner		: Path to VM runner script"
-	printf "%s\n" "Runner must run virtual machine somewhere based on input ISO and RAW image"
-	printf "%s\n" "Example: ./scripts/runOVMF.sh ./ISO/WinPE.iso ./result/win22.raw"
+	printf "%s\n" "Runner must run virtual machine somewhere based on input RAW image"
+	printf "%s\n" "Example: ./scripts/runOVMF.sh ./result/win22.raw"
 }
 
 info_out(){
@@ -70,9 +70,9 @@ image_part(){
 	parted "$1" -s -- set 1 legacy_boot on
 	parted "$1" -s -- mkpart primary ntfs 106M 100%
 	parted "$1" -s -- set 2 msftdata on
-	parted "$1" -s -- print
 	mkfs.vfat "$1""p1" -F32
 	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1 -q
+	parted "$1" -s -- print
 }
 
 wim_extract(){
