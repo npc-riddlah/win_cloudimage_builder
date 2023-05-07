@@ -43,15 +43,14 @@ image_create(){
 
 image_part(){
 	info_out "Partitioning image"
-	parted "$1" -- mkpart primary fat32 1M 512M $> /dev/null
-	parted "$1" -- set 1 esp on $> /dev/null
-	parted "$1" -- set 1 boot on $> /dev/null
-	parted "$1" -- mkpart primary ntfs 512M 100% $> /dev/null
-	parted "$1" -- set 2 esp on $> /dev/null
-	parted "$1" -- set 2 boot on $> /dev/null
+	parted "$1" -- mkpart primary fat32 1M 106M
+	parted "$1" -- set 1 esp on
+	parted "$1" -- set 1 boot on
+	parted "$1" -- mkpart primary ntfs 106M 100%
+#	parted "$1" -- set 2 msftdata on
+	parted "$1" -- print
 	mkfs.vfat "$1""p1" -F32
 	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1 -q
-	install-mbr -i n -p D -t 0 "$1"
 }
 
 wim_extract(){
@@ -80,7 +79,7 @@ directories_umount(){
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
-	qemu-system-x86_64 -accel kvm -m 2048 -drive file=$1,format=raw,index=1,media=disk -boot d -cdrom $2 -vga qxl -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -q
+	qemu-system-x86_64 -accel kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
 }
 
 #Parsing commandline here
