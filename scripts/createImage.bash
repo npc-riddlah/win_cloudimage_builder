@@ -28,6 +28,14 @@ warn_out(){
 	fi
 }
 
+err_out(){
+        if [[ -n "$1" ]]; then
+        C_RED='\033[0;31m'
+        C_NULL='\033[0m'
+        printf "${C_YELW}[WARN] $1 ${C_NULL}\n"
+        fi
+}
+
 iso_mount(){
 	info_out "Mounting iso"
 	mkdir -p $1
@@ -100,7 +108,7 @@ run_win(){
 }
 
 if [ "$EUID" -ne 0 ]
-  then warn_out "Please run as root (sudo)"
+  then err_out "Please run as root (sudo)"
   exit
 fi
 
