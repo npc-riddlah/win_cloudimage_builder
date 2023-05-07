@@ -32,7 +32,7 @@ err_out(){
         if [[ -n "$1" ]]; then
         C_RED='\033[0;31m'
         C_NULL='\033[0m'
-        printf "${C_YELW}[WARN] $1 ${C_NULL}\n"
+        printf "${C_RED}[ERROR] $1 ${C_NULL}\n"
         fi
 }
 
