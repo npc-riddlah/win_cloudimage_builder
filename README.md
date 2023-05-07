@@ -4,7 +4,7 @@ Catalog structure:
 -elements				<- Folder with elements  
 ---CUSTOM_ELEMENT_NAME	<- One element folder  
 -----install 			<- Files from here will be copied into C:/hooks/install/ and will be launched by mainhook  
------configure                    <- Files from here will be copied into C:/hooks/configure/ and will be launched by mainhook
+-----configure                    <- Files from here will be copied into C:/hooks/configure/ and will be launched by mainhook  
 -----clean			<- Files from here will be copied into C:/hooks/clean/ and will be launched by mainhook  
 -----root				<- Files from here will be copied in system drive with overwrite  
 -ISO					<- Contains ISO with WinPE and other windows original ISO  
@@ -22,5 +22,5 @@ Commandline parameters:
 -n or --name    : Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)  
 -u or --unattendxml    : Path to unattend.xml  
 -r or --runner           : Path to VM runner script  
-Runner must run virtual machine somewhere based RAW image  
-Example: ./scripts/runOVMF.sh ./result/win22.raw
+Runner must run virtual machine somewhere based on RAW image  
+Example: ./scripts/runOVMF.sh ./result/win22.raw  
