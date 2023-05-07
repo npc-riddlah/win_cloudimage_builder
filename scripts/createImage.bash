@@ -61,12 +61,12 @@ image_create(){
 
 image_part(){
 	info_out "Partitioning image"
-	parted "$1" -- mkpart primary fat32 1M 106M
-	parted "$1" -- set 1 esp on
-	parted "$1" -- set 1 boot on
-	parted "$1" -- mkpart primary ntfs 106M 100%
-	parted "$1" -- set 2 msftdata on
-	parted "$1" -- print
+	parted "$1" -s -- mkpart primary fat32 1M 106M
+	parted "$1" -s -- set 1 esp on
+	parted "$1" -s -- set 1 boot on
+	parted "$1" -s -- mkpart primary ntfs 106M 100%
+	parted "$1" -s -- set 2 msftdata on
+	parted "$1" -s -- print
 	mkfs.vfat "$1""p1" -F32
 	mkfs.ntfs "$1""p2" -Q -v -F -p 0 -S 1 -H 1 -q
 }
