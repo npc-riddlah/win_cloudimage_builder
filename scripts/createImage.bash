@@ -64,6 +64,7 @@ image_part(){
 	parted "$1" -s -- mkpart primary fat32 1M 106M
 	parted "$1" -s -- set 1 esp on
 	parted "$1" -s -- set 1 boot on
+	parted "$1" -s -- set 1 legacy_boot on
 	parted "$1" -s -- mkpart primary ntfs 106M 100%
 	parted "$1" -s -- set 2 msftdata on
 	parted "$1" -s -- print
@@ -99,7 +100,7 @@ directories_umount(){
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
-	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host
 }
 
 run_win(){
