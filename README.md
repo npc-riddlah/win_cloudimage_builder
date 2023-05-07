@@ -18,3 +18,4 @@ Commandline parameters:
 -I or --iso     : Path to reference Windows ISO image  
 -w or --winpeiso: Path to prepared WinPE ISO that will create bcd storage  
 -n or --name    : Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)  
+-u or --unattendxml    : Path to unattend.xml  
