@@ -1,0 +1,6 @@
+sel disk 0
+sel volume 1
+assign letter c
+sel volume 2
+assign letter e
+exit
