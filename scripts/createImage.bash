@@ -117,7 +117,7 @@ run_winpe(){
 }
 
 run_win(){
-	info_out "Running installed windows. Awaiting sysprep to finish..."
+	info_out "Running installed windows. Awaiting finish..."
 	info_out "Runner: $1 $2"
 #	qemu-system-x86_64 -accel kvm -m 2048 -boot c -hda $1 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host -net nic -net tap,script=no,downscript=no
 	eval "$1 $2"
