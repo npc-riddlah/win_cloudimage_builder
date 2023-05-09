@@ -113,7 +113,7 @@ directories_umount(){
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
-	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd -cpu host
+	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=5900,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
 }
 
 run_win(){
