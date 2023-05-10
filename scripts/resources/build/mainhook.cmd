@@ -1,5 +1,6 @@
 chcp 65001
-
+cd "C:\hooks\preinstall\"
+for /r %%v in (*.cmd) do start /wait %%v
 cd "C:\hooks\install\"
 for /r %%v in (*.cmd) do start /wait %%v
 cd "C:\hooks\configure\"

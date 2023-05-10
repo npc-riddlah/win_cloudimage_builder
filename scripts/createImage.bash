@@ -95,10 +95,12 @@ copy_mainhook(){
 
 copy_element(){
 	info_out "Copying element:"$1
+	mkdir ${2}/raw/hooks/preinstall -p
 	mkdir ${2}/raw/hooks/install -p
 	mkdir ${2}/raw/hooks/configure -p
 	mkdir ${2}/raw/hooks/clean -p
 	cp $1/root/* ${2}/raw/ -vfR
+	cp $1/preinstall/*  ${2}/raw/hooks/preinstall/ -vR
 	cp $1/install/*  ${2}/raw/hooks/install/ -vR
 	cp $1/configure/* $2/raw/hooks/configure/ -vR
 	cp $1/clean/* ${2}/raw/hooks/clean/ -vR
@@ -210,8 +212,8 @@ copy_mainhook $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
 directories_umount $PATH_MOUNT ${PATH_LO}
 run_winpe $PATH_IMAGE $PATH_WINPE
-if [ "$FLAG_RUNNER" = true ]; then 
-	run_win $PATH_RUNNER $PATH_IMAGE 
+if [ "$FLAG_RUNNER" = true ]; then
+	run_win $PATH_RUNNER $PATH_IMAGE
 fi
 info_out "Image is done!"
 exit 0
