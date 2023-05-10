@@ -127,6 +127,14 @@ run_win(){
 	eval "$1 $2"
 }
 
+quit_int(){
+	err_out "SIGINT RECEIVED!"
+	umount $1/iso
+	umount $1/raw
+	losetup -d "$2"
+	exit 1
+}
+
 if [ "$EUID" -ne 0 ]
   then err_out "Please run as root (sudo)"
   exit
@@ -201,6 +209,8 @@ while [[ $# -gt 0 ]]; do
 	;;
 	esac
 done
+
+trap "quit_int $PATH_MOUNT ${PATH_LO}" INT
 
 #Running all necessary tasks
 iso_mount $PATH_MOUNT $PATH_ISO
