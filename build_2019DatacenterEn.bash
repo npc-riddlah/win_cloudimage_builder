@@ -1,5 +1,5 @@
 #!/bin/bash
-PATH_IMG=./result/win19sten.raw				 #Selecting output image path
+PATH_IMG=./result/win19dcen.raw				 #Selecting output image path
 PATH_MNT=/mnt/win2019sten				 #Selecting PATH where we mount all images (ISO, RAW)
 PATH_ISO=./ISO/win19en.iso				 #Path to windows installation disk ISO
 PATH_PE=./ISO/WinPE_amd64.iso				 #Path to prepared earlier WinPE ISO. You can check all changes in ./resources/winpe
