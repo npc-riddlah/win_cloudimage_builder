@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#Default settings here:
+FLAG_RUNNER=false
+FLAG_SPICE=false
+
 help_out(){
 	printf "%s\n" "Commandline parameters:"
 	printf "%s\n" "-h or --help 		: This text"
@@ -127,8 +131,8 @@ run_winpe(){
 
 run_win(){
 	info_out "Running installed windows. Awaiting finish..."
-	info_out "Runner: $1 $2 $3"
-	eval "$1 $2 $3"
+	info_out "Runner: $1 $2 $3 $4"
+	eval "$1 $2 $3 $4"
 }
 
 quit_int(){
