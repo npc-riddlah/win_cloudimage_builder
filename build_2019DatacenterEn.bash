@@ -1,4 +1,5 @@
 #!/bin/bash
+PORT_SPICE=5901
 PATH_IMG=./result/win19dcen.raw				 #Selecting output image path
 PATH_MNT=/mnt/win2019sten				 #Selecting PATH where we mount all images (ISO, RAW)
 PATH_ISO=./ISO/win19en.iso				 #Path to windows installation disk ISO
@@ -9,5 +10,5 @@ PATH_RUNNER=./scripts/runOVMF.bash			 #Path to runner. Runner - script, that wil
 VAR_NAME=Windows\ Server\ 2019\ SERVERDATACENTER		 #Name of Windows edition in WIM file
 VAR_SIZE=20G						 #Final size of the image.
 
-./scripts/createImage.bash -i $PATH_IMG -m $PATH_MNT -s $VAR_SIZE -I $PATH_ISO -w $PATH_PE -n "$VAR_NAME" -e $PATH_ELEMENT -u $PATH_UNATTENDXML -r $PATH_RUNNER -e ./elements/cloudbase-init/
+./scripts/createImage.bash -i $PATH_IMG -m $PATH_MNT -s $VAR_SIZE -I $PATH_ISO -w $PATH_PE -n "$VAR_NAME" -e $PATH_ELEMENT -u $PATH_UNATTENDXML -r $PATH_RUNNER -e ./elements/cloudbase-init/ -p $PORT_SPICE
 exit 0
