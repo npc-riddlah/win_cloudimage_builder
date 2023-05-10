@@ -127,8 +127,8 @@ run_winpe(){
 
 run_win(){
 	info_out "Running installed windows. Awaiting finish..."
-	info_out "Runner: $1 $2 $3 $4"
-	eval "$1 $2 $3 $4"
+	info_out "Runner: $1 $2 $3"
+	eval "$1 $2 $3"
 }
 
 quit_int(){
