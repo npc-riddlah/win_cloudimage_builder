@@ -11,7 +11,7 @@ help_out(){
 	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
 	printf "%s\n" "-u or --unattendxml	: Path to unattend.xml"
 	printf "%s\n" "-r or --runner		: Path to VM runner script"
-	printf "%s\n" "-p or --spiceport	: Port of qemu SPICE server"
+	printf "%s\n" "-p or --spiceport	: Port of qemu SPICE server. When sets turns on SPICE on VM's"
 	printf "%s\n" "Runner must run virtual machine somewhere based on input RAW image"
 	printf "%s\n" "Example: ./scripts/runOVMF.sh ./result/win22.raw"
 }
@@ -118,13 +118,17 @@ directories_umount(){
 
 run_winpe(){
 	info_out "Running pe with bootsect installation"
-	qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+	if [ "$4" = true ]; then
+		qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+	else
+		qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -bios /usr/share/qemu/OVMF.fd -display none
+	fi
 }
 
 run_win(){
 	info_out "Running installed windows. Awaiting finish..."
-	info_out "Runner: $1 $2 $3"
-	eval "$1 $2 $3"
+	info_out "Runner: $1 $2 $3 $4"
+	eval "$1 $2 $3 $4"
 }
 
 quit_int(){
@@ -199,6 +203,7 @@ while [[ $# -gt 0 ]]; do
                 shift
         ;;
 	-p|--spiceport)
+		FLAG_SPICE=true
 		PORT_SPICE=$2
 		shift
 		shift
@@ -228,9 +233,9 @@ copy_unattend $PATH_UNATTEND $PATH_MOUNT
 copy_mainhook $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
 directories_umount $PATH_MOUNT ${PATH_LO}
-run_winpe $PATH_IMAGE $PATH_WINPE $PORT_SPICE
+run_winpe $PATH_IMAGE $PATH_WINPE $PORT_SPICE $FLAG_SPICE
 if [ "$FLAG_RUNNER" = true ]; then
-	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE
+	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE $FLAG_SPICE
 fi
 info_out "Image is done!"
 exit 0
