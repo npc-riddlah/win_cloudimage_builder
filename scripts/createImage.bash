@@ -7,7 +7,7 @@ help_out(){
 	printf "%s\n" "-m or --mount		: Path of directory, where image will be mounted"
 	printf "%s\n" "-s or --size		: Size of the final image (At example: 20G)"
 	printf "%s\n" "-I or --iso		: Path to reference Windows ISO image"
-	printf "%s\n" "-w or --winpeiso		: Path to prepared WinPE ISO that will create bcd storage"
+	printf "%s\n" "-w or --winpeiso	: Path to prepared WinPE ISO that will create bcd storage"
 	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
 	printf "%s\n" "-u or --unattendxml	: Path to unattend.xml"
 	printf "%s\n" "-r or --runner		: Path to VM runner script"
