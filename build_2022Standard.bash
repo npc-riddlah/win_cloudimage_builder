@@ -10,3 +10,4 @@ VAR_NAME=Windows\ Server\ 2022\ SERVERSTANDARD		 #Name of Windows edition in WIM
 VAR_SIZE=20G						 #Final size of the image.
 
 ./scripts/createImage.bash -i $PATH_IMG -m $PATH_MNT -s $VAR_SIZE -I $PATH_ISO -w $PATH_PE -n "$VAR_NAME" -e $PATH_ELEMENT -u $PATH_UNATTENDXML -r $PATH_RUNNER -e ./elements/cloudbase-init/
+exit 0
