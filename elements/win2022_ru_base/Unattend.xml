@@ -39,6 +39,18 @@
 			<UserLocale>ru-RU</UserLocale>
 		</component>
 		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<FirstLogonCommands>
+				<SynchronousCommand wcm:action="add">
+					<CommandLine>REG ADD "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /V "mainhook" /t REG_SZ /F /D "C:\mainhook.cmd"</CommandLine>
+					<Description>Mainhook autostart enable</Description>
+					<Order>1</Order>
+				</SynchronousCommand>
+				<SynchronousCommand wcm:action="add">
+					<CommandLine>start c:\mainhook.cmd</CommandLine>
+					<Description>Mainhook start</Description>
+					<Order>2</Order>
+				</SynchronousCommand>
+			</FirstLogonCommands>
 			<UserAccounts>
 				<AdministratorPassword>
 					<Value>password</Value>

@@ -84,13 +84,15 @@ wim_extract(){
 copy_unattend(){
 	info_out "Copying Unnattend.xml"
 	mkdir ${2}/raw/Windows/Panther -p
-	cp $1 ${2}/raw/Windows/Panther/Unattend.xml
+	cp $1 ${2}/raw/Windows/Panther/Unattend.xml -v
 }
 
 copy_mainhook(){
 	info_out "Copying Main hook"
 	PATH_SCRIPT=$(dirname "${BASH_SOURCE[0]}")
-	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup/mainhook.cmd -v
+#	mkdir -p ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup
+#	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup/mainhook.cmd -v
+	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ -v
 }
 
 copy_element(){

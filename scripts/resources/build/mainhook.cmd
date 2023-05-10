@@ -13,9 +13,10 @@ reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Defau
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v ForceAutoLogon /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultDomainName /f
+reg delete "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "mainhook" /f
 
 del "C:\hooks\*" /f /q /s
 shutdown /s /t 10
 rmdir "C:\hooks\" /s /q 
-del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\mainhook.cmd" /f /q /s
+del "C:\mainhook.cmd" /f /q /s
 exit
