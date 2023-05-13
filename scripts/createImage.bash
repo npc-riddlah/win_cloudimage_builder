@@ -227,6 +227,8 @@ done
 trap "quit_int $PATH_MOUNT ${PATH_LO}" INT
 
 #Running all necessary tasks
+time_start=$SECONDS
+
 iso_mount $PATH_MOUNT $PATH_ISO
 image_create $PATH_IMAGE $SIZE_IMAGE
 PATH_LO=$(losetup --partscan --show --find $PATH_IMAGE)
@@ -241,5 +243,7 @@ run_winpe $PATH_IMAGE $PATH_WINPE $PORT_SPICE $FLAG_SPICE
 if [ "$FLAG_RUNNER" = true ]; then
 	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE $FLAG_SPICE
 fi
+time_end=$(( SECONDS - time_start ))
 info_out "Image is done!"
+info_out "Image was builded in: $time_end seconds"
 exit 0
