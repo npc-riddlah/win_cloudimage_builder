@@ -1,12 +1,12 @@
 chcp 65001
 cd "C:\hooks\preinstall\"
-for /r %%v in (*.cmd) do start /wait %%v
+for /r %%v in (*.cmd) do start /wait /b %%v ^> COM1
 cd "C:\hooks\install\"
-for /r %%v in (*.cmd) do start /wait %%v
+for /r %%v in (*.cmd) do start /wait /b %%v ^> COM1
 cd "C:\hooks\configure\"
-for /r %%v in (*.cmd) do start /wait %%v
+for /r %%v in (*.cmd) do start /wait /b %%v ^> COM1
 cd "C:\hooks\clean\"
-for /r %%v in (*.cmd) do start /wait %%v
+for /r %%v in (*.cmd) do start /wait /b %%v ^> COM1
 
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /f
