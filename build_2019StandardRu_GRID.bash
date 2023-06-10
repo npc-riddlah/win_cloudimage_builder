@@ -1,7 +1,7 @@
 #!/bin/bash
 PORT_SPICE=5902
-PATH_IMG=./result/win19stru.raw				 #Selecting output image path
-PATH_MNT=/mnt/win2019stru				 #Selecting PATH where we mount all images (ISO, RAW)
+PATH_IMG=./result/win19stru_grid.raw				 #Selecting output image path
+PATH_MNT=/mnt/win2019stru_grid				 #Selecting PATH where we mount all images (ISO, RAW)
 PATH_ISO=./ISO/win19ru.iso				 #Path to windows installation disk ISO
 PATH_PE=./ISO/WinPE_amd64.iso				 #Path to prepared earlier WinPE ISO. You can check all changes in ./resources/winpe
 PATH_ELEMENT=./elements/win2019_st_ru_base/		 #Path to first element. You can add more than one. Element - the collection of settings that will be applied to image.
