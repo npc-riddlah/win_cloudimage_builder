@@ -1,2 +1,0 @@
-wmic computersystem set AutomaticManagedPagefile=True
-exit
