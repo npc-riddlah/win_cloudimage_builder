@@ -15,10 +15,11 @@ Catalog structure:
     │  ├─ root/			<- Files from here will be copied in system drive with overwrite
     ISO/			<- Contains ISO with WinPE and other windows original ISO
     result/			<- Contains builded ready to upload .raw images
+    runbuild/                   <- Contains scripts which run image generation
     scripts/			<- Containst build/run scripts of this tool
-    resources/			<- Contains resources for third-party tasks as WinPE image prepare
-    ├─ build/			<- Contains script needed resources for build
-    │  ├─ mainhook.cmd		<- This script runs other scripts on guest image
+    │  ├─ resources/			<- Contains resources for third-party tasks as WinPE image prepare
+    │  ├─ ├─ build/			<- Contains script needed resources for build
+    │  ├─ ├─ mainhook.cmd		<- This script runs other scripts on guest image
 
 The order of element executing:
 
@@ -43,3 +44,7 @@ Commandline parameters:
 
 Runner must run virtual machine somewhere based on RAW image
 Example: ./scripts/runOVMF.sh ./result/win22.raw
+
+You can run image build like that:
+sudo ./build_all_2019_gameready.bash
+sudo ./runbuild/build_2019StandardRu_Gameready.bash
