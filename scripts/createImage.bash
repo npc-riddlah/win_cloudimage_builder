@@ -120,12 +120,16 @@ directories_umount(){
 	losetup -d "$2"
 }
 
+image_resize(){
+	exit 0
+}
+
 run_winpe(){
 	info_out "Running pe with bootsect installation"
 	if [ "$4" = true ]; then
-		qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd 
 	else
-		qemu-system-x86_64 -accel kvm -m 1024 -hda $1 -boot d -cdrom $2 -vga virtio -bios /usr/share/qemu/OVMF.fd -display none
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -bios /usr/share/qemu/OVMF.fd -display none 
 	fi
 }
 
