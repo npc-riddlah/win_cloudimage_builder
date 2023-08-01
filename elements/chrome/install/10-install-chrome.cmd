@@ -1,1 +1,1 @@
-msiexec.exe C:\util\GoogleChromeStandaloneEnterprise64.msi /quiet 
+msiexec.exe C:\tools\GoogleChromeStandaloneEnterprise64.msi /quiet 
