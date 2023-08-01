@@ -3,6 +3,7 @@
 #Default settings here:
 FLAG_RUNNER=false
 FLAG_SPICE=false
+PATH_WINPE_OVERLAY=./scripts/resources/winpe/
 
 help_out(){
 	printf "%s\n" "Commandline parameters:"
@@ -11,7 +12,7 @@ help_out(){
 	printf "%s\n" "-m or --mount		: Path of directory, where image will be mounted"
 	printf "%s\n" "-s or --size		: Size of the final image (At example: 20G)"
 	printf "%s\n" "-I or --iso		: Path to reference Windows ISO image"
-	printf "%s\n" "-w or --winpeiso	: Path to prepared WinPE ISO that will create bcd storage"
+	printf "%s\n" "-w or --winpeoverlay	: Path to prepared WinPE Overlay that will applied to the WinPE image"
 	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
 	printf "%s\n" "-u or --unattendxml	: Path to unattend.xml"
 	printf "%s\n" "-r or --runner		: Path to VM runner script"
@@ -124,12 +125,17 @@ image_resize(){
 	exit 0
 }
 
+winpe_create(){
+	info_out "Creating WinPE Image"
+	mkwinpeimg -i -O $2 -a amd64 -W $3/iso $1
+}
+
 run_winpe(){
-	info_out "Running pe with bootsect installation"
+	info_out "Running WinPE with bootsect installation"
 	if [ "$4" = true ]; then
-		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -bios /usr/share/qemu/OVMF.fd 
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on
 	else
-		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -bios /usr/share/qemu/OVMF.fd -display none 
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -display none
 	fi
 }
 
@@ -183,8 +189,8 @@ while [[ $# -gt 0 ]]; do
 		shift
 		shift
 	;;
-	-w|--winpeiso)
-		PATH_WINPE=$2
+	-w|--winpeoverlay)
+		PATH_WINPE_OVERLAY=$2
 		shift
 		shift
 	;;
@@ -242,8 +248,9 @@ raw_mount $PATH_MOUNT ${PATH_LO}p2
 copy_unattend $PATH_UNATTEND $PATH_MOUNT
 copy_mainhook $PATH_MOUNT
 for ((i=1; i <= $ELEMENT_COUNT; i++)) do copy_element ${PATH_ELEMENT[$i]} $PATH_MOUNT; done
+winpe_create $PATH_IMAGE.winpe $PATH_WINPE_OVERLAY $PATH_MOUNT
 directories_umount $PATH_MOUNT ${PATH_LO}
-run_winpe $PATH_IMAGE $PATH_WINPE $PORT_SPICE $FLAG_SPICE
+run_winpe $PATH_IMAGE $PATH_IMAGE.winpe $PORT_SPICE $FLAG_SPICE
 if [ "$FLAG_RUNNER" = true ]; then
 	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE $FLAG_SPICE
 fi
