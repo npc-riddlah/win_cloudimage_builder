@@ -4,13 +4,16 @@
 FLAG_RUNNER=false
 FLAG_SPICE=false
 PATH_WINPE_OVERLAY=./scripts/resources/winpe/
-
+SIZE_IMAGE_INIT=50G
+SIZE_IMAGE=25G
+SIZE_RESERVE=536870912 #Reserve in bytes that will be used in image shrinking. Size of final filesystem will be lesser than entire image by value.
 help_out(){
 	printf "%s\n" "Commandline parameters:"
 	printf "%s\n" "-h or --help 		: This text"
 	printf "%s\n" "-i or --image		: Path of final raw image. Where we store it"
 	printf "%s\n" "-m or --mount		: Path of directory, where image will be mounted"
 	printf "%s\n" "-s or --size		: Size of the final image (At example: 20G)"
+	printf "%s\n" "-S or --sizeinit		: Initial image size. Will be shrinked to --size at the end. 50G by default"
 	printf "%s\n" "-I or --iso		: Path to reference Windows ISO image"
 	printf "%s\n" "-w or --winpeoverlay	: Path to prepared WinPE Overlay that will applied to the WinPE image"
 	printf "%s\n" "-n or --name		: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)"
@@ -121,9 +124,6 @@ directories_umount(){
 	losetup -d "$2"
 }
 
-image_resize(){
-	exit 0
-}
 
 winpe_create(){
 	info_out "Creating WinPE Image"
@@ -143,6 +143,21 @@ run_win(){
 	info_out "Running installed windows. Awaiting finish..."
 	info_out "Runner: $1 $2 $3 $4"
 	eval "$1 $2 $3 $4"
+}
+
+image_shrink(){
+#	info_out "Shrinking image"
+#	PATH_LO=$(losetup --partscan --show --find $1)
+#	ntfsresize -f --size $(expr $2 - $SIZE_RESERVE) ${PATH_LO}p2
+#	parted "${PATH_LO}" -s -- resizepart 2 $(expr $2 - $SIZE_RESERVE)
+#	parted "${PATH_LO}" -s -- rm 2
+#	losetup -d ${PATH_LO}
+#	qemu-img resize --shrink $1 $2
+#	PATH_LO=$(losetup --partscan --show --find $1)
+#	parted "${PATH_LO}" -s -- mkpart primary ntfs 106M 100%
+#        parted "${PATH_LO}" -s -- set 2 msftdata on
+#	parted "${PATH_LO}" -s -- print
+#	losetup -d ${PATH_LO}
 }
 
 quit_int(){
@@ -181,6 +196,11 @@ while [[ $# -gt 0 ]]; do
 	;;
 	-s|--size)
 		SIZE_IMAGE=$2
+		shift
+		shift
+	;;
+	-S|--sizeinit)
+		SIZE_IMAGE_INIT=$2
 		shift
 		shift
 	;;
@@ -237,10 +257,45 @@ done
 trap "quit_int $PATH_MOUNT ${PATH_LO}" INT
 
 #Running all necessary tasks
+
+#Doing size convertation
+SIZE_IMAGE_INIT_MEASURE=${SIZE_IMAGE_INIT: -1}
+case $SIZE_IMAGE_INIT_MEASURE in
+	"K")
+		SIZE_IMAGE_INIT=${SIZE_IMAGE_INIT%K*}
+		SIZE_IMAGE_INIT=$(expr ${SIZE_IMAGE_INIT} \* 1024)
+	;;
+	"M")
+		SIZE_IMAGE_INIT=${SIZE_IMAGE_INIT%M*}
+		SIZE_IMAGE_INIT=$(expr ${SIZE_IMAGE_INIT} \* 1048576)
+	;;
+	"G")
+		SIZE_IMAGE_INIT=${SIZE_IMAGE_INIT%G*}
+		SIZE_IMAGE_INIT=$(expr ${SIZE_IMAGE_INIT} \* 1073741824)
+	;;
+esac
+
+SIZE_IMAGE_MEASURE=${SIZE_IMAGE: -1}
+case $SIZE_IMAGE_MEASURE in
+	"K")
+		SIZE_IMAGE=${SIZE_IMAGE%K*}
+		SIZE_IMAGE=$(expr ${SIZE_IMAGE} \* 1024)
+	;;
+	"M")
+		SIZE_IMAGE=${SIZE_IMAGE%M*}
+		SIZE_IMAGE=$(expr ${SIZE_IMAGE} \* 1048576)
+	;;
+	"G")
+		SIZE_IMAGE=${SIZE_IMAGE%G*}
+		SIZE_IMAGE=$(expr ${SIZE_IMAGE} \* 1073741824)
+	;;
+esac
+
+#Building image here
 time_start=$SECONDS
 
 iso_mount $PATH_MOUNT $PATH_ISO
-image_create $PATH_IMAGE $SIZE_IMAGE
+image_create $PATH_IMAGE ${SIZE_IMAGE_INIT}
 PATH_LO=$(losetup --partscan --show --find $PATH_IMAGE)
 image_part ${PATH_LO}
 wim_extract $PATH_MOUNT "$NAME_IMAGE" ${PATH_LO}
@@ -254,6 +309,7 @@ run_winpe $PATH_IMAGE $PATH_IMAGE.winpe $PORT_SPICE $FLAG_SPICE
 if [ "$FLAG_RUNNER" = true ]; then
 	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE $FLAG_SPICE
 fi
+image_shrink $PATH_IMAGE ${SIZE_IMAGE}
 time_end=$(( SECONDS - time_start ))
 info_out "Image is done!"
 info_out "Image was builded in: $time_end seconds"
