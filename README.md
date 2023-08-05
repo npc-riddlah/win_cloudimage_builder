@@ -1,7 +1,9 @@
 # Win Image Builder 
 
-## Tool to build cloud Windows images.
-I tried to make this scripts similiar in using with diskimage-builder tool, but for work with Windows images.
+### Tool to build cloud Windows images on Linux. 
+### Bash-written Alternative to windows-imaging-tools
+
+I tried to make this scripts similiar to diskimage-builder tool in using, but for work with Windows images.
 This scripts uses vanilla Windows ISO images, installs it, applies elements running in qemu-kvm and build .raw image at the end.
 At the moment this scripts too strange in the some moments, but still usable. 
 I recommend use Ubuntu with that (Just don't tested in the other distros) 
@@ -56,9 +58,13 @@ Commandline parameters:
     -r or --runner      : Path to VM runner script
     -p or --spiceport   : Port of qemu SPICE server. When sets turns on the SPICE on VM's
 
-Runner must run virtual machine somewhere based on RAW image
+Runner must run virtual machine somewhere based on RAW image  
 Example: ./scripts/runOVMF.sh ./result/win22.raw
 
-You can run image build like that:
-sudo ./build_all_2019_gameready.bash
-sudo ./runbuild/build_2019StandardRu_Gameready.bash
+You can run image build like that:  
+sudo ./build_all_2019_gameready.bash  
+sudo ./runbuild/build_2019StandardRu_Gameready.bash  
+
+Similiar tools:  
+[Cloudbase Windows-imaging-tools](https://github.com/cloudbase/windows-imaging-tools)  
+[OpenStack diskimage-builder](https://github.com/openstack/diskimage-builder)
