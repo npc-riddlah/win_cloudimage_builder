@@ -15,11 +15,11 @@ Catalog structure:
     │  ├─ root/			<- Files from here will be copied in system drive with overwrite
     ISO/			<- Contains ISO with WinPE and other windows original ISO
     result/			<- Contains builded ready to upload .raw images
-    runbuild/                   <- Contains scripts which run image generation
+    runbuild/			<- Contains scripts which run image generation
     scripts/			<- Containst build/run scripts of this tool
-    │  ├─ resources/			<- Contains resources for third-party tasks as WinPE image prepare
-    │  ├─ ├─ build/			<- Contains script needed resources for build
-    │  ├─ ├─ mainhook.cmd		<- This script runs other scripts on guest image
+    ├─ resources/		<- Contains resources for third-party tasks as WinPE image prepare
+    │  ├─ build/		<- Contains script needed resources for build
+    │  ├─ winpe/		<- Overlay for WinPE images. Used to create boot partition by default
 
 The order of element executing:
 
@@ -35,7 +35,8 @@ Commandline parameters:
     -i or --image	: Path of final raw image. Where we store it
     -m or --mount	: Path of directory, where image will be mounted
     -s or --size	: Size of the final image (At example: 20G)
-    -I or --iso		: Path to reference Windows ISO image
+    -S or --sizeinit	: Initial size of image. Using only on installation proccess. Will be resized to --size at the end.
+    -I or --iso	: Path to reference Windows ISO image
     -w or --winpeiso	: Path to prepared WinPE ISO that will create bcd storage
     -n or --name	: Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)
     -u or --unattendxml	: Path to unattend.xml
