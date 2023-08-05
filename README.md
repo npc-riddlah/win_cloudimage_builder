@@ -24,7 +24,7 @@ In this list we see:
 <path_to_element> - In the bottom of this readme you will see catalog structure and order of element execution. You can create elements everywhere to be honest. Here you can specify path to element. There can be several elements.  
 ```
 And, there is ready for launch example of clean, preconfigured and updated Windows Server 2022 Standard cloud image build:  
-```./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_ru_base/Unattend.xml -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -e ./elements/win2022_st_ru_base/ -e ./elements/cloudbase-init/ ```
+```./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_en_base/Unattend.xml -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -e ./elements/cloudbase-init/ ```
 
 ### Jobs order in details 
 1. Mounting specified ISO./ISO/win22ru.iso  
