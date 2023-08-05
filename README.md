@@ -12,7 +12,7 @@ How to build image:
 1. Clone repository 
 2. Place ISO image at the ./ISO directory
 3. cd to root of repository
-4. sudo ./scripts/createImage.bash -I ./ISO/<your_iso_file_name> -n <win_edition_name> -i <path_to_final_image> -u <path_to_unattend.xml> -m /mnt/<random_mount_name> -e <path_to_element> -r ./scripts/runOVMF.bash -s 25G
+4. sudo ./scripts/createImage.bash -I ./ISO/<your_iso_file_name> -n <win_edition_name> -i <path_to_final_image> -u <path_to_unattend.xml> -m /mnt/<random_mount_name> -e <path_to_element> -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -s 25G
 5. Wait... And done!
 
 In this list we see:
@@ -24,7 +24,7 @@ In this list we see:
 <path_to_element> - In the bottom of this readme you will see catalog structure and order of element execution. You can create elements everywhere to be honest. Here you can specify path to element. There can be several elements.  
 
 And, there is ready for launch example of clean, preconfigured and updated Windows Server 2022 Standard cloud image build:  
-./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_ru_base/Unattend.xml -r ./scripts/runOVMF.bash -e ./elements/win2022_st_ru_base/ -e ./elements/cloudbase-init/ 
+./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_ru_base/Unattend.xml -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -e ./elements/win2022_st_ru_base/ -e ./elements/cloudbase-init/ 
 
 Jobs order in details:  
 1. Mounting specified ISO./ISO/win22ru.iso  
@@ -70,7 +70,7 @@ Commandline parameters:
     -s or --size        : Size of the final image (At example: 20G)
     -S or --sizeinit    : Initial size of image. Using only on installation proccess. Will be resized to --size at the end.
     -I or --iso         : Path to reference Windows ISO image
-    -w or --winpeiso    : Path to prepared WinPE ISO that will create bcd storage
+    -w or --winpeoverlay: Path to prepared WinPE Overlay that will applied to the WinPE image  
     -n or --name        : Name of Windows in WIM image (Windows Server 2022 SERVERSTANDARD at example)
     -u or --unattendxml : Path to unattend.xml
     -r or --runner      : Path to VM runner script
