@@ -17,11 +17,11 @@ I recommend use Ubuntu with that (Just don't tested in the other distros)
 
 In this list we see:  
 ```-<your_iso_file_name> - Filename of your .iso image  
-**<win_edition_name>** - Name of Windows edition as in WIM image. At example: "Windows Server 2022 SERVERDATACENTER" or "Windows Server 2022 SERVERSTANDARD". You can see the full list of namings by wim-info tool.  
-**<path_to_final_image>** - Path where final image and log will be stored. I recommend to create subcatalogue for that.  
-**<path_to_unattend.xml>** - Path to unattend.xml file. This file Windows use for initial settings. You can grab one from ./elements/win*_base/unattend.xml. Just change the activation key to what you want. Also, he is compatible with windows from 2012 up to 2022.  
-**<random_mount_name>** - just folder where all mountpoints will be created to work with that image. Please, use different mount paths for different images in order to avoid path collisions.  
-**<path_to_element>** - In the bottom of this readme you will see catalog structure and order of element execution. You can create elements everywhere to be honest. Here you can specify path to element. There can be several elements.  
+<win_edition_name> - Name of Windows edition as in WIM image. At example: "Windows Server 2022 SERVERDATACENTER" or "Windows Server 2022 SERVERSTANDARD". You can see the full list of namings by wim-info tool.  
+<path_to_final_image> - Path where final image and log will be stored. I recommend to create subcatalogue for that.  
+<path_to_unattend.xml> - Path to unattend.xml file. This file Windows use for initial settings. You can grab one from ./elements/win*_base/unattend.xml. Just change the activation key to what you want. Also, he is compatible with windows from 2012 up to 2022.  
+<random_mount_name> - just folder where all mountpoints will be created to work with that image. Please, use different mount paths for different images in order to avoid path collisions.  
+<path_to_element> - In the bottom of this readme you will see catalog structure and order of element execution. You can create elements everywhere to be honest. Here you can specify path to element. There can be several elements.  
 ```
 And, there is ready for launch example of clean, preconfigured and updated Windows Server 2022 Standard cloud image build:  
 ```./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_ru_base/Unattend.xml -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -e ./elements/win2022_st_ru_base/ -e ./elements/cloudbase-init/ ```
