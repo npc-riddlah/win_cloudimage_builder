@@ -1,8 +1,21 @@
 # Win Image Builder 
 
 ## Tool to build cloud Windows images.
+I tried to make this scripts similiar in using with diskimage-builder tool, but for work with Windows images.
+This scripts uses vanilla Windows ISO images, installs it, applies elements running in qemu-kvm and build .raw image at the end.
+At the moment this scripts too strange in the some moments, but still usable. 
+I recommend use Ubuntu with that (Just don't tested in the other distros) 
 
- 
+Jobs order in details:
+1. Mounting specified ISO
+2. Creating and partitioning RAW Image
+3. Applying WIM archive from specified edition of Windows to RAW image
+4. Copying specified elements and main hook which launches elements inside Windows
+5. Building WinPE with customizable Bootsector installation script
+6. Running this WinPE Image on created RAW image. At this step we getting fully working Windows image, but with big specified size and not installed elements.
+7. Running RAW Windows image to install elements online (At the really working Windows instance). You can skip this step ommiting -r option. Or you can use other tools to run Windows.
+8. Shrinking image. (Not so good done at this moment, but working)
+9. Done. You can upload or run final windows image.
 
 Catalog structure:
 
