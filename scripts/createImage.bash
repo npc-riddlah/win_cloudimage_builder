@@ -146,17 +146,41 @@ run_win(){
 }
 
 image_shrink(){
-#	info_out "Shrinking image"
-#	PATH_LO=$(losetup --partscan --show --find $1)
-#	ntfsresize -f --size $(expr $2 - $SIZE_RESERVE) ${PATH_LO}p2
-#	parted "${PATH_LO}" -s -- resizepart 2 $(expr $2 - $SIZE_RESERVE)
+	info_out "Creating new lesser image"
+	qemu-img create -f raw -o size=$2 $1.target
+	PATH_LO=$(losetup --partscan --show --find $1)
+	PATH_LO_TARGET=$(losetup --partscan --show --find $1.target)
+	parted "${PATH_LO_TARGET}" -s -- mklabel gpt
+	parted "${PATH_LO_TARGET}" -s -- mkpart primary fat32 1M 106M
+	parted "${PATH_LO_TARGET}" -s -- set 1 esp on
+        parted "${PATH_LO_TARGET}" -s -- set 1 boot on
+        parted "${PATH_LO_TARGET}" -s -- set 1 legacy_boot on
+        parted "${PATH_LO_TARGET}" -s -- mkpart primary ntfs 106M 100%
+        parted "${PATH_LO_TARGET}" -s -- set 2 msftdata on
+        mkfs.vfat "${PATH_LO_TARGET}""p1" -F32
+        mkfs.ntfs "${PATH_LO_TARGET}""p2" -Q -v -F -p 0 -S 1 -H 1 -q
+        parted "${PATH_LO_TARGET}" -s -- print
+	partprobe ${PATH_LO_TARGET}
+
+	info_out "Shrinking NTFS on master"
+	ntfsresize -f -s $(expr $2 - $SIZE_RESERVE) ${PATH_LO}p2
+
+	info_out "Copying all the data..."
+	dd if=${PATH_LO}p2 of=${PATH_LO_TARGET}p2 bs=1M
+	info_out "Copiyng done"
+
+	info_out "Finalizing"
+	losetup -d ${PATH_LO}
+	losetup -d ${PATH_LO_TARGET}
+	rm $1
+	mv $1.target $1
+
+#	Trying to resize directly here:
 #	parted "${PATH_LO}" -s -- rm 2
-#	losetup -d ${PATH_LO}
-#	qemu-img resize --shrink $1 $2
-#	PATH_LO=$(losetup --partscan --show --find $1)
-#	parted "${PATH_LO}" -s -- mkpart primary ntfs 106M 100%
-#        parted "${PATH_LO}" -s -- set 2 msftdata on
-#	parted "${PATH_LO}" -s -- print
+#	parted "${PATH_LO}" -s -- mkpart primary ntfs 106M $2
+#	parted "${PATH_LO}" -s -- list
+#	qemu-img convert -p -S 512 ${PATH_LO} -O qcow2 $1.result
+#	virt-sparsify --format raw $1 $1.target
 #	losetup -d ${PATH_LO}
 }
 
@@ -309,7 +333,8 @@ run_winpe $PATH_IMAGE $PATH_IMAGE.winpe $PORT_SPICE $FLAG_SPICE
 if [ "$FLAG_RUNNER" = true ]; then
 	run_win $PATH_RUNNER $PATH_IMAGE $PORT_SPICE $FLAG_SPICE
 fi
-image_shrink $PATH_IMAGE ${SIZE_IMAGE}
+image_shrink $PATH_IMAGE ${SIZE_IMAGE} $PATH_MOUNT
+run_winpe $PATH_IMAGE $PATH_IMAGE.winpe $PORT_SPICE $FLAG_SPICE
 time_end=$(( SECONDS - time_start ))
 info_out "Image is done!"
 info_out "Image was builded in: $time_end seconds"
