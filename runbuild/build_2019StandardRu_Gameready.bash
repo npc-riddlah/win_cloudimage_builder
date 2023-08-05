@@ -10,5 +10,5 @@ PATH_RUNNER=./scripts/runOVMF.bash			 #Path to runner. Runner - script, that wil
 VAR_NAME=Windows\ Server\ 2019\ SERVERSTANDARD		 #Name of Windows edition in WIM file
 VAR_SIZE=21G						 #Final size of the image.
 
-./scripts/createImage.bash -i $PATH_IMG -m $PATH_MNT -s $VAR_SIZE -S 50G -I $PATH_ISO -w $PATH_PE -n "$VAR_NAME" -e $PATH_ELEMENT -u $PATH_UNATTENDXML -r $PATH_RUNNER -e ./elements/cloudbase-init/ -p $PORT_SPICE -e ./elements/gameready -e ./elements/virtio -e ./elements/baremetaldrv -e ./elements/chrome
+./scripts/createImage.bash -i $PATH_IMG -m $PATH_MNT -s $VAR_SIZE -S 50G -I $PATH_ISO -w $PATH_PE -n "$VAR_NAME" -e $PATH_ELEMENT -u $PATH_UNATTENDXML -r $PATH_RUNNER -e ./elements/cloudbase-init/ -e ./elements/gameready -e ./elements/virtio -e ./elements/baremetaldrv -e ./elements/chrome
 exit 0

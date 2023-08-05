@@ -7,6 +7,7 @@ PATH_WINPE_OVERLAY=./scripts/resources/winpe/
 SIZE_IMAGE_INIT=50G
 SIZE_IMAGE=25G
 SIZE_RESERVE=536870912 #Reserve in bytes that will be used in image shrinking. Size of final filesystem will be lesser than entire image by value.
+
 help_out(){
 	printf "%s\n" "Commandline parameters:"
 	printf "%s\n" "-h or --help 		: This text"
@@ -93,7 +94,7 @@ wim_extract(){
 copy_unattend(){
 	info_out "Copying Unnattend.xml"
 	mkdir ${2}/raw/Windows/Panther -p
-	cp $1 ${2}/raw/Windows/Panther/Unattend.xml -v
+	cp $1 ${2}/raw/Windows/Panther/Unattend.xml
 }
 
 copy_mainhook(){
@@ -101,7 +102,7 @@ copy_mainhook(){
 	PATH_SCRIPT=$(dirname "${BASH_SOURCE[0]}")
 #	mkdir -p ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup
 #	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup/mainhook.cmd -v
-	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ -v
+	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/
 }
 
 copy_element(){
@@ -111,10 +112,10 @@ copy_element(){
 	mkdir ${2}/raw/hooks/configure -p
 	mkdir ${2}/raw/hooks/clean -p
 	cp $1/root/* ${2}/raw/ -vfR
-	cp $1/preinstall/*  ${2}/raw/hooks/preinstall/ -vR
-	cp $1/install/*  ${2}/raw/hooks/install/ -vR
-	cp $1/configure/* $2/raw/hooks/configure/ -vR
-	cp $1/clean/* ${2}/raw/hooks/clean/ -vR
+	cp $1/preinstall/*  ${2}/raw/hooks/preinstall/ -R
+	cp $1/install/*  ${2}/raw/hooks/install/ -R
+	cp $1/configure/* $2/raw/hooks/configure/ -R
+	cp $1/clean/* ${2}/raw/hooks/clean/ -R
 }
 
 directories_umount(){
@@ -133,9 +134,9 @@ winpe_create(){
 run_winpe(){
 	info_out "Running WinPE with bootsect installation"
 	if [ "$4" = true ]; then
-		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -spice port=$3,addr=0.0.0.0,disable-ticketing=on -serial file:$1.log
 	else
-		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -display none
+		qemu-system-x86_64 -machine q35,accel=kvm -m 2048 -hda $1 -boot d -cdrom $2 -vga virtio -display none -serial file:$1.log
 	fi
 }
 
