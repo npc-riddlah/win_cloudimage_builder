@@ -12,19 +12,17 @@ I recommend use Ubuntu with that (Just don't tested in the other distros)
 1. Clone repository 
 2. Place ISO image at the ./ISO directory
 3. cd to root of repository
-4. ```sudo ./scripts/createImage.bash -I ./ISO/<your_iso_file_name> -n <win_edition_name> -i <path_to_final_image> -u <path_to_unattend.xml> -m /mnt/<random_mount_name> -e <path_to_element> -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -s 25G```
+4. ```sudo ./scripts/createImage.bash -I ./ISO/<your_iso_file_name> -n <win_edition_name> -i <path_to_final_image>  -e <path_to_element> -s 25G```
 5. Wait... And done!
 
 In this list we see:  
 ```-<your_iso_file_name> - Filename of your .iso image  
 <win_edition_name> - Name of Windows edition as in WIM image. At example: "Windows Server 2022 SERVERDATACENTER" or "Windows Server 2022 SERVERSTANDARD". You can see the full list of namings by wim-info tool.  
 <path_to_final_image> - Path where final image and log will be stored. I recommend to create subcatalogue for that.  
-<path_to_unattend.xml> - Path to unattend.xml file. This file Windows use for initial settings. You can grab one from ./elements/win*_base/unattend.xml. Just change the activation key to what you want. Also, he is compatible with windows from 2012 up to 2022.  
-<random_mount_name> - just folder where all mountpoints will be created to work with that image. Please, use different mount paths for different images in order to avoid path collisions.  
 <path_to_element> - In the bottom of this readme you will see catalog structure and order of element execution. You can create elements everywhere to be honest. Here you can specify path to element. There can be several elements.  
 ```
 And, there is ready for launch example of clean, preconfigured and updated Windows Server 2022 Standard cloud image build:  
-```./scripts/createImage.bash -i ./result/win22sten/ -m /mnt/win22sten/ -s 20G -S 50G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -u ./elements/win2022_st_en_base/Unattend.xml -r ./scripts/runOVMF.bash -w ./scripts/resources/winpe/ -e ./elements/cloudbase-init/ ```
+```./scripts/createImage.bash -i ./result/win22sten.raw -s 20G -I ./ISO/win22en.iso -n "Windows Server 2022 SERVERSTANDARD" -e ./elements/cloudbase-init/ ```
 
 ### Jobs order in details 
 1. Mounting specified ISO./ISO/win22ru.iso  
@@ -78,6 +76,8 @@ And, there is ready for launch example of clean, preconfigured and updated Windo
 
 Runner must run virtual machine somewhere based on RAW image  
 Example: ./scripts/runOVMF.sh ./result/win22.raw
+
+You can tweak default parameters in ./scripts/default if you need.
 
 You can run image build like that:  
 sudo ./build_all_2019_gameready.bash  

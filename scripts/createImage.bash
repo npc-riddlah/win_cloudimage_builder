@@ -1,12 +1,5 @@
 #!/bin/bash
-
-#Default settings here:
-FLAG_RUNNER=false
-FLAG_SPICE=false
-PATH_WINPE_OVERLAY=./scripts/resources/winpe/
-SIZE_IMAGE_INIT=50G
-SIZE_IMAGE=25G
-SIZE_RESERVE=536870912 #Reserve in bytes that will be used in image shrinking. Size of final filesystem will be lesser than entire image by value.
+source ./scripts/defaults
 
 help_out(){
 	printf "%s\n" "Commandline parameters:"

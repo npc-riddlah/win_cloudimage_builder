@@ -1,0 +1,11 @@
+#Edit default settings here please
+FLAG_RUNNER=true        #Will run $PATH_RUNNER to build your image after win install and element copying
+FLAG_SPICE=false        #Don't start SPICE session for virtual machines
+SIZE_IMAGE_INIT=50G     #Initial image size. Needs to be bigger than final. Bigger is better.
+SIZE_IMAGE=25G		#Final image size
+SIZE_RESERVE=536870912  #Reserve in bytes that will be used in image shrinking. Size of final filesystem will be lesser than entire image by value.
+PATH_MOUNT=/mnt/$(uuidgen) #Default mountpoint for all operations such as ISO and RAW mounts for data manipulation
+PATH_WINPE_OVERLAY=./scripts/resources/winpe/  #WinPE overlay that will be applied to winPE image. By default this will create EFI bootloader. Change only if you know what you doing.
+PATH_UNATTEND=./scripts/resources/build/unattend.xml_default  #Default path to unattend.xml file
+PATH_RUNNER=./scripts/runOVMF.bash  #Script which will start virtual machine to allow windows run scripts from elements. You can write your own if you want to connect to your environment.
+
