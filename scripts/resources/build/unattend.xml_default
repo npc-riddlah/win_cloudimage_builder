@@ -46,7 +46,7 @@
 					<Order>1</Order>
 				</SynchronousCommand>
 				<SynchronousCommand wcm:action="add">
-					<CommandLine>start c:\mainhook.cmd</CommandLine>
+					<CommandLine>powershell c:\mainhook.ps1</CommandLine>
 					<Description>Mainhook start</Description>
 					<Order>2</Order>
 				</SynchronousCommand>

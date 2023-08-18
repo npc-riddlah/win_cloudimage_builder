@@ -2,18 +2,21 @@ chcp 65001
 
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" /t REG_DWORD /v "IRPStackSize" /d 32 /f
 
-cd "C:\hooks\preinstall\"
-for /r %%v in (*.ps1) do echo %%v > COM1 & powershell "& ""%%v""" > COM1
-for /r %%v in (*.cmd) do echo %%v > COM1 & start /wait /b %%v ^> COM1
-cd "C:\hooks\install\"
-for /r %%v in (*.ps1) do echo %%v > COM1 & powershell "& ""%%v""" > COM1
-for /r %%v in (*.cmd) do echo %%v > COM1 & start /wait /b %%v ^> COM1
-cd "C:\hooks\configure\"
-for /r %%v in (*.ps1) do echo %%v > COM1 & powershell "& ""%%v""" > COM1
-for /r %%v in (*.cmd) do echo %%v > COM1 & start /wait /b %%v ^> COM1
-cd "C:\hooks\clean\"
-for /r %%v in (*.ps1) do echo %%v > COM1 & powershell "& ""%%v""" > COM1
-for /r %%v in (*.cmd) do echo %%v > COM1 & start /wait /b %%v ^> COM1
+Get-ChildItem 'C:\hooks\preinstall' | ForEach-Object {
+  & $_.FullName
+}
+
+Get-ChildItem 'C:\hooks\install' | ForEach-Object {
+  & $_.FullName
+}
+
+Get-ChildItem 'C:\hooks\configure' | ForEach-Object {
+  & $_.FullName
+}
+
+Get-ChildItem 'C:\hooks\clean' | ForEach-Object {
+  & $_.FullName
+}
 
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /f
 reg delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /f

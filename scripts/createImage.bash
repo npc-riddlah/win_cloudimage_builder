@@ -95,7 +95,7 @@ copy_mainhook(){
 	PATH_SCRIPT=$(dirname "${BASH_SOURCE[0]}")
 #	mkdir -p ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup
 #	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/ProgramData/Microsoft/Windows/Start\ Menu/Programs/Startup/mainhook.cmd -v
-	cp $PATH_SCRIPT/resources/build/mainhook.cmd ${1}/raw/
+	cp $PATH_SCRIPT/resources/build/mainhook.ps1 ${1}/raw/
 }
 
 copy_element(){
