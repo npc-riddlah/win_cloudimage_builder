@@ -1,47 +1,60 @@
-### 1. Концепция и структура  
+# Win-Cloudimage-Builder
 
-win-builder позволяет в автоматическом режиме собирать облачные образы Windows на Linux хостах, используя Qemu/KVM.  
-В основе лежат:  
-1. Базовый ISO образ Windows  
-2. Элементы использующие PowerShell  
-3. Описание образа в виде конфига  
-4. Скрипты для запуска и автоматизации сборки.  
+Win-Cloudimage-Builder is a small toolkit for quick and automated building of Windows cloud images on Linux operating systems.  
+It is provides DIB-like build system based on Elements and image configs, but uses pure windows ISO to build.  
+The project is not system-safe at this stage, as it uses insecure functions and paths, such as working with libvirt and system paths and direct 'prerun' prerun scripts calls.   Therefore, we recommend running it in virtual machines with KVM support or in containers.  
+Currently, the project is in the early stages of development, and various aspects and features may change in the future. However, it is already ready for use.  
 
-### 2. Делаем свой образ  
-При работе "с нуля" необходимо:  
-1. Залить ISO образ в папку /ISO  
-2. Добавить нужные элементы в /elements  
-3. По шаблону набросать конфиг образа:  
-```
+In addition to the build scripts, the repository also includes ready-made examples of elements and images.  
+Any feedback is welcome: suggestions, bug reports, pull requests, and feature requests. Please leave them in the Issues section, and we will definitely see them.  
+
+Below are the main principles of operation.  
+
+### 1. Concept and Structure
+
+Win-cloudimage-builder allows for the automatic creation of Windows cloud images on Linux hosts using Qemu/KVM and Libvirt.  
+The foundation consists of:  
+1. A base Windows ISO image  
+2. Elements using PowerShell  
+3. Image description in the form of a config  
+4. Scripts for launching and automating the build process.  
+
+### 2. Creating Your Own Image
+
+When starting from scratch, you need to:  
+1. Upload the ISO image to the `/ISO` folder  
+2. Add the necessary elements to `/elements`  
+3. Draft a config for the image based on the template:  
+```ini
 [SETTINGS]
-	#Полное имя образа. Используется при выгрузке в OpenStack. %date пока единственная доступная переменная
+	# Full name of the image. Used when uploading to OpenStack. %date is the only available variable for now.
 osName=Windows Server 2025 Standard RU ($date) - GameReady Driver
-    #Короткое имя без пробелов и специальных символов, запрещенных в файловой системе. Будет использоваться как уникальное имя конечного файла и точки монтирования
+    # Short name without spaces and special characters prohibited in the file system. Will be used as the unique name for the final file and mount point.
 name=win25stru_game
-	#Модуль для сборки. Если планируется использовать в одном режиме всегда - лучше указать в scripts/winbuilder.conf
+	# Build module. If you plan to use it in one mode always, it's better to specify it in scripts/winbuilder.conf.
 builder=virt_win
-	#Модуль для выгрузки. Так же лучше указать в scripts/winbuilder.conf в секции [DEFAULTS], если не планируется часто изменять
+	# Upload module. Also better to specify in scripts/winbuilder.conf in the [DEFAULTS] section if you don't plan to change it often.
 uploader=glance
-    #Путь, по которому будет сохранен файл образа
+    # Path where the image file will be saved.
 pathSave=/opt/client-resources
-    #Путь к оригинальному ISO образу Windows
+    # Path to the original Windows ISO image.
 pathIso=./ISO/win25ru.iso
-    #Опционально: Путь к Unnatend.xml который будет использован для старта Audit Mode при первом запуске сборки 
+    # Optional: Path to Unnatend.xml which will be used to start Audit Mode during the first build run.
 pathUnattend=./elements/windows_general/unnatend/2025.xml
-	#Опционально: Путь к оверлею WinPE, который будет развернут поверх чистого WinPE образа. 
-        #             Планируется убрать и генерировать оверлей автоматически в зависимости от параметров разделов.
+	# Optional: Path to the WinPE overlay, which will be deployed on top of the clean WinPE image.
+        #             Planned to be removed and the overlay will be generated automatically based on partition parameters.
 pathWinPE=./scripts/resources/winpe
-	#Название редакции Windows так же, как указано в архиве WIM
+	# Name of the Windows edition as specified in the WIM archive.
 editionName=Windows Server 2025 SERVERSTANDARD
-    #Размер образа используемый на стадии сборки.
+    # Image size used during the build stage.
 buildSize=50G
-    #Опционально: Если указан, то при сборке будет работать spice на указанном порте
+    # Optional: If specified, Spice will work on the specified port during the build.
 spicePort=5920
-	#Опционально: Можем указать дополнительные параметры для QEMU на стадии WinPE. Полезно для WinServer 2025.
+	# Optional: We can specify additional parameters for QEMU during the WinPE stage. Useful for WinServer 2025.
 winPeQemuCmdline=-cpu Skylake-Client-v3
-	#Опционально: Таймаут сборки в секундах. Полезно при шансе зависания установки какого-либо пакета или ОС. Если не указан применяется таймаут указанный в winbuilder.conf, либо 30000 секунд.
+	# Optional: Build timeout in seconds. Useful if there's a chance of the installation of a package or OS hanging. If not specified, the timeout in winbuilder.conf is used, or 30000 seconds by default.
 buildTimeout=20000
-    #Список элементов для установки в виде путей
+    # List of elements to install as paths.
 [ELEMENTS] 
 ./elements/general.d/windows_general
 ./elements/general.d/cloudbase-init
@@ -51,82 +64,86 @@ buildTimeout=20000
 ./elements/general.d/baremetaldrv
 ./elements/general.d/non-existing
 
-    #Опционально: Экспорт перемеенных окружения в сборочное окружение.
+    # Optional: Export environment variables to the build environment.
 [EXPORTS]
 TESTVAR=123
 
-    #Параметры разделов. Можно указать любое число, но:
-    #1. buildSize распространяется только на размер последнего раздела на стадии сборки.
-    #   Другие разделы не изменят своего размера. Позже исправим на ресайз указанного системного раздела.
-    #2. После точки указывается имя. На этом примере будет создано два раздела с именами BOOT и SYSTEM
+    # Partition parameters. You can specify any number, but:
+    #1. buildSize only applies to the size of the last partition during the build stage.
+    #   Other partitions will not change their size. Later, we will fix this to resize the specified system partition.
+    #2. After the dot, specify the name. In this example, two partitions will be created with the names BOOT and SYSTEM.
 [PARTITION.BOOT]
 size=100M
 filesystem=fat32
-#Полный список флагов доступен по ссылке: https://github.com/dcantrell/pyparted/blob/main/src/parted/__init__.py#L159
+# Full list of flags is available at: https://github.com/dcantrell/pyparted/blob/main/src/parted/__init__.py#L159
 flags=PARTITION_MSFT_RESERVED;PARTITION_BOOT
 
 [PARTITION.SYSTEM]
 size=25500M
 filesystem=ntfs
-	#Параметр system ниже указывает, на какой раздел будет устаовлен Windows.
+	# The system parameter below indicates which partition Windows will be installed on.
 system=true
 ```
-4. Запустить ```./scripts/buildImage.py ./path/to/windows.config``` скрипт с указанием конфига образа. Сборка началась.  
-5. Через SPICE клиенты можем подключиться по указанному в spicePort порту. Отлавливаем некорректное поведение, отлаживаем элементы.  
-6. Образ собран и залит. Можно тестировать на серверах.  
+4. Run <Username>-openrc.sh from OpenStack to make automatic upload in Glance available.
+5. Run the ```./scripts/buildImage.py ./path/to/windows.config``` script with the image config specified. The build has started.  
+6. Through SPICE clients, you can connect to the port specified in spicePort. Catch incorrect behavior, debug elements.  
+7. The image is built and uploaded. You can test it on servers.  
 
-### 3. Быстрая сборка из готовых  
-Все готовые конфиги образов лежат в /images/ каталоге. Запустить можно следующим образом:  
+### 3. Quick Build from Ready-made Configs
+
+All ready-made image configs are located in the `/images/` directory. You can run them as follows:  
 ```
-cd <корень репозитория>/
+cd <repository root>/
 sudo ./scripts/buildImage.py ./images/base/2022StandardRu_gameready.conf
 ```
-И по желанию ручной аплоад. Образ и так будет залит, если указаны переменные окружения (openstack.rc) для подключения к OpenStack:  
+And optionally, manual upload. The image will be uploaded automatically if the environment variables (openstack.rc) for connecting to OpenStack are specified:  
 ```
-openstack image create --container-format bare --disk-format raw  --file ./result/win10.raw --private --property hw_disk_bus=virtio --property hw_rescue_device=disk --property hw_rescue_bus=virtio --property os_type=windows --property hw_video_model=cirrus --property hw_firmware_type=uefi --property hw_machine_type=pc-q35-focal-hpb --progress "Windows 10 RU (May 2024) - GameReady Driver"
-```
-
-### 4. Разработка элементов  
-Элемент - это единица изменений. Представляет собой каталог с необходимыми скриптами и программами. При указании элемента содержимое копируется в образ и выполняется на стороне виртуальной машины. Скрипты пишутся на PowerShell или CMD. PS предпочтительнее.  
-
-Базовая структура элемента, в порядке выполнения:  
-```
-/elements/<название элемента>/prerun <-- Выполнение скриптов перед запуском машины
-/elements/<название элемента>/configure <-- Преднастройка
-/elements/<название элемента>/install <-- Установка программ
-/elements/<название элемента>/clean <-- Этап очистки перед sysprep
-/elements/<название элемента>/root <-- Копируется целиком в корень диска C:/.  
-/elements/<название элемента>/version.txt <-- Версия пакета и опционально имя. При отсутствии версия будет 'none'
+openstack image create --container-format bare --disk-format raw  --file ./result/win10.raw --private --property hw_disk_bus=virtio --property hw_rescue_device=disk --property hw_rescue_bus=virtio --property hw_firmware_type=uefi --progress "Windows 10 RU (May 2024) - GameReady Driver"
 ```
 
-В каталоги раскладываются PS скрипты, которые будут выполнять действия по настройке и установке программ и ОС.   
+### 4. Developing Elements
 
-В каталог `/elements/<название элемента>/root` стоит добавлять различные исполняемые файлы, либо файлы, накладываемые на диск C:/. Например, `/elements/<название элемента>/root/testfolder/testfile.txt` на хосте будет выглядеть как `C:/testfolder/testfile.txt`.  
+An element is a unit of change. It is a directory with the necessary scripts and programs. When an element is specified, its contents are copied to the image and executed on the virtual machine side. Scripts are written in PowerShell or CMD. PS is preferred.  
 
-В prerun директории можно добавить bash скрипты, которые будут выполнены после монтирования системной ФС и перед копированием элементов. Может подойти для скачивания дистрибутивов программ и драйверов до запуска машины, обновления version.txt или других действий.
-Для prerun скриптов доступны следующие переменные:  
+The basic structure of an element, in order of execution:  
 ```
-$WCB_PATH_SYSPART - Путь точки монтирования системного раздела образа (Диск с Windows, проще говоря) 
-$WCB_PATH_ELEMENT - Путь в системе к элементу
-$WCB_PATH_ISO - Путь точки монтирования исходного ISO образа Windows
+/elements/<element name>/prerun <-- Execution of scripts before the machine starts.
+/elements/<element name>/configure <-- Pre-configuration.
+/elements/<element name>/install <-- Installation of programs.
+/elements/<element name>/clean <-- Cleanup stage before sysprep.
+/elements/<element name>/root <-- Copied entirely to the root of the C:/ drive.  
+/elements/<element name>/version.txt <-- Package version and optionally name. If absent, the version will be 'none'.
 ```
 
-Для элементов доступны следующие дочерние функции с примерами:  
-Вывод в лог timestamp + stdout + serial:  
+PS scripts are placed in the directories to perform actions for configuring and installing programs and the OS.  
+
+The `/elements/<element name>/root` directory should contain various executable files or files to be placed on the C:/ drive. For example, `/elements/<element name>/root/testfolder/testfile.txt` on the host will appear as `C:/testfolder/testfile.txt`.  
+
+In the prerun directory, you can add bash scripts that will be executed after mounting the system FS and before copying the elements. This can be useful for downloading program and driver distributions before starting the machine, updating version.txt, or other actions.  
+The following variables are available for prerun scripts:  
+```
+$WCB_PATH_SYSPART - Path to the mount point of the system partition of the image (the Windows drive, simply put).
+$WCB_PATH_ELEMENT - Path in the system to the element.
+$WCB_PATH_ISO - Path to the mount point of the original Windows ISO image.
+```
+
+The following child functions are available for elements with examples:  
+Output timestamp + stdout + serial to log:  
 ```
 logInfo "Installing GameReady Driver"
 ```
-Проверить необходимость перезагрузки и перезагрузиться при необходимости:  
+Check if a reboot is needed and reboot if necessary:  
 ```
 checkReboot
 ```
 
-Установить драйверы из каталога рекурсивно. В примере будут установлены все .inf и .cat, которые содержат "2022" в полном пути:  
+Install drivers from a directory recursively. In the example, all .inf and .cat files containing "2022" in the full path will be installed:  
 ```
 installDrivers -path_drv "C:/my/drivers/folder" -filter "*2022*"
 ```
 
-### 5. Модульность:  
-Модули алгоритмов сборки доступны в `./scripts/builders`   
-Модули выгрузки образов сборки в `./scripts/uploaders`  
-Модули интеграций доступны в `./scripts/integrations`  
+### 5. Modularity:
+
+Build algorithm modules are available in `./scripts/builders`  
+Image upload modules are available in `./scripts/uploaders`  
+Integration modules are available in `./scripts/integrations`
