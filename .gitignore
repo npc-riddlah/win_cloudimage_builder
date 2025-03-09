@@ -1,0 +1,11 @@
+result/*
+elements/*/root
+elements/*/*/root
+elements/*/*/*/root
+ISO/*
+log/*
+scripts/resources/winpe/drivers
+scripts/__pycache__/*
+scripts/*/__pycache__
+conf/telegram.conf
+.venv/*
