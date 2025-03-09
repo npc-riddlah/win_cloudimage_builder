@@ -1,0 +1,1 @@
+GameReady Driver 572.42 CUDA 12.8

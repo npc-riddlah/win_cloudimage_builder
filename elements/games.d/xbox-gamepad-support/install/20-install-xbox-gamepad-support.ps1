@@ -1,0 +1,1 @@
+installDrivers -path_drv "C:\tools\xbox360acessories\xbox360\setup64\files\driver\win7"

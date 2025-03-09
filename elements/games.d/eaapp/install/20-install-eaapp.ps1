@@ -1,0 +1,1 @@
+Start-Process -Wait -FilePath "C:/tools/EAappInstaller.exe" -ArgumentList "/silent"

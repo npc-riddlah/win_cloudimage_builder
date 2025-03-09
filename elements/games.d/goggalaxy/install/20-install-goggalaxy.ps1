@@ -1,0 +1,1 @@
+Start-Process -Wait -FilePath "C:/tools/GalaxyInstaller/GalaxySetup.exe" -ArgumentList "/VERYSILENT /NORESTART"

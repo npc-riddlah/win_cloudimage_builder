@@ -1,0 +1,1 @@
+Start-Process -Wait -FilePath "C:/tools/SteamSetup.exe" -ArgumentList "/S /D=C:\Steam"
