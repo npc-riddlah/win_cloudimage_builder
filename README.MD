@@ -146,4 +146,11 @@ installDrivers -path_drv "C:/my/drivers/folder" -filter "*2022*"
 
 Build algorithm modules are available in `./scripts/builders`  
 Image upload modules are available in `./scripts/uploaders`  
-Integration modules are available in `./scripts/integrations`
+Integration modules are available in `./scripts/integrations`  
+  
+  
+Similiar projects:  
+[Cloudbase windows-imaging-tools](https://github.com/cloudbase/windows-imaging-tools)  
+[Openstack diskimage-builder](https://github.com/openstack/diskimage-builder)  
+
+

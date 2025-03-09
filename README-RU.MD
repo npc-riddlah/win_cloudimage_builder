@@ -139,3 +139,7 @@ installDrivers -path_drv "C:/my/drivers/folder" -filter "*2022*"
 Модули алгоритмов сборки доступны в `./scripts/builders`   
 Модули выгрузки образов сборки в `./scripts/uploaders`  
 Модули интеграций доступны в `./scripts/integrations`  
+
+Similiar projects:  
+[Cloudbase windows-imaging-tools](https://github.com/cloudbase/windows-imaging-tools)  
+[Openstack diskimage-builder](https://github.com/openstack/diskimage-builder)  
